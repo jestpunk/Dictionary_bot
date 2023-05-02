@@ -5,6 +5,10 @@ import enum
 import os
 from dotenv import load_dotenv
 
+#=============================
+# КЛАССЫ 
+#=============================
+
 class ResultCodes(enum.Enum):
     '''
     Enum класс для упорядочивания
@@ -64,7 +68,10 @@ class Dictionary:
 
 load_dotenv()
 
-# 'Итальянский': Dictionary('Итальянский', ...)
+#=============================
+# ОБЪЕКТЫ
+#=============================
+
 dictionaries = dd(str)
 max_dict_name_len = 20
 first = True
@@ -117,7 +124,10 @@ menu_markup.add(btn_create_dict,
             btn_delete_word)
 
 
-# НАЧАЛО
+#=============================
+# МЕТОДЫ БОТА
+#=============================
+
 @bot.message_handler(commands=['start'])
 def start_message(message):
     global first
@@ -163,8 +173,6 @@ def manager(message):
         start_message(message)
 
 
-
-
 # УДАЛИТЬ СЛОВО
 @bot.message_handler(commands=['delete_word'])
 def delete_word(message):
@@ -185,7 +193,8 @@ def delete_word(message):
 def have_dict_name_to_delete_word(message):
     dict_name = message.text
     if dict_name not in dictionaries.keys():
-        bot.send_message(message.from_user.id, 'Такого словаря не существует!')
+        bot.send_message(message.from_user.id, 
+                        'Такого словаря не существует!')
         delete_word(message)
 
     else:
@@ -194,20 +203,23 @@ def have_dict_name_to_delete_word(message):
         for w in words:
             words_markup.add(types.KeyboardButton(w))
         
-        sent = bot.send_message(message.from_user.id, 'Какое слово вы хотите удалить?',
-        reply_markup=words_markup)
+        sent = bot.send_message(message.from_user.id, 
+                                'Какое слово вы хотите удалить?',
+                                reply_markup=words_markup)
         bot.register_next_step_handler(sent, have_dict_name_and_word_to_delete, message, dict_name)
 
 
 def have_dict_name_and_word_to_delete(message, old_message, dict_name):
     word = message.text
     if word not in dictionaries[dict_name].mapping.keys():
-        bot.send_message(message.from_user.id, "Такого слова не существует!")
+        bot.send_message(message.from_user.id, 
+                        "Такого слова не существует!")
         have_dict_name_to_delete_word(old_message)
 
     else:
         dictionaries[dict_name].mapping.pop(word)
-        bot.send_message(message.from_user.id, f"Слово {word} успешно удалено")
+        bot.send_message(message.from_user.id, 
+                        f"Слово {word} успешно удалено")
         start_message(message)
 
 
@@ -216,15 +228,16 @@ def have_dict_name_and_word_to_delete(message, old_message, dict_name):
 def delete_dict(message):
     if len(dictionaries.keys()) == 0:
         bot.send_message(message.from_user.id,
-        'К сожалению у вас пока нет словарей. Добавьте их с помощью кнопки "Добавить словарь"',
-        parse_mode='Markdown')
+                        'К сожалению у вас пока нет словарей. Добавьте их с помощью кнопки *Добавить словарь*',
+                        parse_mode='Markdown')
         start_message(message)
         return
     
     update_dicts_markup()
     
-    sent = bot.send_message(message.from_user.id, 'Выберите словарь из списка',
-    reply_markup=dicts_markup)
+    sent = bot.send_message(message.from_user.id, 
+                            'Выберите словарь из списка',
+                            reply_markup=dicts_markup)
     bot.register_next_step_handler(sent, have_dict_name_to_delete_dict) 
 
 
@@ -309,7 +322,7 @@ def look_to_dictionary(message):
     
     if len(dictionaries.keys()) == 0:
         bot.send_message(message.from_user.id,
-        'К сожалению у вас пока нет словарей. Добавьте их с помощью кнопки "Добавить словарь"',
+        'К сожалению у вас пока нет словарей. Добавьте их с помощью кнопки *Добавить словарь*',
         parse_mode='Markdown')
         start_message(message)
 
@@ -330,9 +343,6 @@ def have_dict_name_to_watch(message):
         bot.send_message(message.from_user.id, f'{dictionaries[dict_name]}',
         parse_mode='Markdown')
         start_message(message)
-
-
-
 
 
 # СПИСОК СЛОВАРЕЙ
@@ -356,16 +366,14 @@ def parse_to_human_readable(dicts):
     return res   
 
 
-
-
-
 # ДОБАВИТЬ СЛОВАРЬ
 @bot.message_handler(commands=['add_dictionary'])
 def add_dictionary(message):
     
     sent = bot.send_message(message.from_user.id, 'Давайте добавим для вас новый словарь!\n\n' + 
     'Для этого введите его имя\n\n' +
-    f'`ВАЖНО! Длина имени не превысит {max_dict_name_len} символов`')
+    f'`ВАЖНО! Длина имени не превысит {max_dict_name_len} символов`',
+    parse_mode='Markdown')
     bot.register_next_step_handler(sent, got_name)   
 
 
@@ -393,7 +401,7 @@ def got_name_and_emoji(message, name):
     dictionaries[new_name] = Dictionary(new_name)
     
     sent = bot.send_message(message.from_user.id, 
-    f'Готово! Новый словарь будет называться `{new_name}`!')
+    f'Готово! Новый словарь будет называться `{new_name}`!', parse_mode='Markdown')
     
     start_message(message)
 
